@@ -32,22 +32,9 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+release:
+  # Release уже создан release-please вместе с текстом, сюда только добавляем архивы.
+  mode: keep-existing
+
 changelog:
-  sort: asc
-  groups:
-    - title: Features
-      regexp: '^feat(\([^)]+\))?!?:'
-      order: 100
-    - title: Bug Fixes
-      regexp: '^fix(\([^)]+\))?!?:'
-      order: 200
-    - title: Refactoring
-      regexp: '^refactor(\([^)]+\))?!?:'
-      order: 300
-    - title: Other
-      order: 999
-  filters:
-    exclude:
-      - '^chore(\([^)]+\))?!?:'
-      - '^docs(\([^)]+\))?!?:'
-      - '^test(\([^)]+\))?!?:'
+  disable: true
