@@ -1,6 +1,7 @@
 package repository
 
 type Repository struct {
-	Name      string
+	Path      string
+	URL       string
 	Directory string
 }

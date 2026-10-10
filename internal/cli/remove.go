@@ -9,7 +9,7 @@ import (
 )
 
 var removeCmd = &cobra.Command{
-	Use:   "remove <repository>...",
+	Use:   "remove <path>...",
 	Short: "Remove one or more repositories from the workspace",
 	Args:  cobra.MinimumNArgs(1),
 	RunE:  removeCommand,
@@ -41,7 +41,7 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 		cmd.Println(output.SuccessStyle.Render("Removed:"))
 
 		for _, result := range removed {
-			cmd.Printf("  %s\n", result.Name)
+			cmd.Printf("  %s\n", result.Path)
 		}
 	}
 
@@ -55,7 +55,7 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 		failedTable := output.NewTable("Repository", "Reason")
 
 		for _, result := range failed {
-			failedTable.Row(result.Name, result.Error.Error())
+			failedTable.Row(result.Path, result.Error.Error())
 		}
 
 		cmd.Println(failedTable.String())

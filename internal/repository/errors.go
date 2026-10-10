@@ -7,4 +7,5 @@ var (
 	ErrRepositoryExists     = errors.New("repository already exists")
 	ErrRepositoryNotTracked = errors.New("repository is not tracked in this workspace")
 	ErrNotGitRepository     = errors.New("directory is not a git repository")
+	ErrOutsideWorkspace     = errors.New("path is outside the workspace")
 )

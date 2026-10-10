@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"os"
-	"path/filepath"
 	"slices"
 
 	"github.com/amatsu-tech/amr/internal/git"
@@ -11,53 +10,64 @@ import (
 )
 
 type AddResult struct {
-	Name  string
+	Path  string
 	Error error
 }
 
-func Add(root string, names ...string) ([]AddResult, error) {
+func Add(root string, paths ...string) ([]AddResult, error) {
 	config, err := workspace.ReadConfig(root)
 	if err != nil {
 		return nil, err
 	}
 
-	results := make([]AddResult, 0, len(names))
+	results := make([]AddResult, 0, len(paths))
 
-	for _, rawName := range names {
-		name := filepath.Base(filepath.Clean(rawName))
-		directory := filepath.Join(root, name)
+	for _, rawPath := range paths {
+		path, err := resolvePath(root, rawPath)
+		if err != nil {
+			results = append(results, AddResult{Path: rawPath, Error: err})
+			continue
+		}
 
-		if _, err := os.Stat(directory); err != nil {
+		repoDirectory := directory(root, path)
+
+		if _, err := os.Stat(repoDirectory); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
-				results = append(results, AddResult{Name: name, Error: ErrRepositoryNotFound})
+				results = append(results, AddResult{Path: path, Error: ErrRepositoryNotFound})
 				continue
 			}
 
 			return nil, err
 		}
 
-		isRepository, err := git.IsRepository(directory)
+		isRepository, err := git.IsRepository(repoDirectory)
 		if err != nil {
 			return nil, err
 		}
 
 		if !isRepository {
-			results = append(results, AddResult{Name: name, Error: ErrNotGitRepository})
+			results = append(results, AddResult{Path: path, Error: ErrNotGitRepository})
 			continue
 		}
 
 		if slices.ContainsFunc(config.Repositories, func(entry workspace.RepositoryEntry) bool {
-			return entry.Name == name
+			return entry.Path == path
 		}) {
-			results = append(results, AddResult{Name: name, Error: ErrRepositoryExists})
+			results = append(results, AddResult{Path: path, Error: ErrRepositoryExists})
+			continue
+		}
+
+		url, err := git.RemoteURL(repoDirectory)
+		if err != nil {
+			results = append(results, AddResult{Path: path, Error: err})
 			continue
 		}
 
 		config.Repositories = append(config.Repositories, workspace.RepositoryEntry{
-			Name:   name,
-			Source: workspace.SourceLocal,
+			Path: path,
+			URL:  url,
 		})
-		results = append(results, AddResult{Name: name})
+		results = append(results, AddResult{Path: path})
 	}
 
 	if err := workspace.WriteConfig(root, config); err != nil {

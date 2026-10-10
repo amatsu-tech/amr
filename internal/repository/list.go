@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"path/filepath"
-
 	"github.com/amatsu-tech/amr/internal/workspace"
 )
 
@@ -16,8 +14,9 @@ func List(root string) ([]Repository, error) {
 
 	for i, entry := range config.Repositories {
 		repositories[i] = Repository{
-			Name:      entry.Name,
-			Directory: filepath.Join(root, entry.Name),
+			Path:      entry.Path,
+			URL:       entry.URL,
+			Directory: directory(root, entry.Path),
 		}
 	}
 

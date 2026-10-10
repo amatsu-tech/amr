@@ -7,15 +7,9 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-type RepositorySource string
-
-const (
-	SourceLocal RepositorySource = "local"
-)
-
 type RepositoryEntry struct {
-	Name   string           `yaml:"name"`
-	Source RepositorySource `yaml:"source"`
+	Path string `yaml:"path"`
+	URL  string `yaml:"url,omitempty"`
 }
 
 type Config struct {

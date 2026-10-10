@@ -48,11 +48,11 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 	for _, repo := range repositories {
 		summary, err := git.Status(repo.Directory)
 		if err != nil {
-			unavailable = append(unavailable, unavailableEntry{Name: repo.Name, Reason: err.Error()})
+			unavailable = append(unavailable, unavailableEntry{Name: repo.Path, Reason: err.Error()})
 			continue
 		}
 
-		entry := statusEntry{Name: repo.Name, Summary: summary}
+		entry := statusEntry{Name: repo.Path, Summary: summary}
 
 		if summary.Clean() && summary.Ahead == 0 && summary.Behind == 0 {
 			clean = append(clean, entry)

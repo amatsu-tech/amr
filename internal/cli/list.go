@@ -28,7 +28,7 @@ func listCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, repository := range repositories {
-		cmd.Println(repository.Name)
+		cmd.Println(repository.Path)
 	}
 
 	return nil

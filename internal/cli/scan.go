@@ -35,15 +35,15 @@ func scanCommand(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	managedNames := make([]string, len(managed))
+	managedPaths := make([]string, len(managed))
 	for i, repo := range managed {
-		managedNames[i] = repo.Name
+		managedPaths[i] = repo.Path
 	}
 
 	var managedRepos, unmanagedRepos []repository.Repository
 
 	for _, repo := range discovered {
-		if slices.Contains(managedNames, repo.Name) {
+		if slices.Contains(managedPaths, repo.Path) {
 			managedRepos = append(managedRepos, repo)
 			continue
 		}
@@ -57,7 +57,7 @@ func scanCommand(cmd *cobra.Command, args []string) error {
 		cmd.Println(output.SuccessStyle.Render("Managed:"))
 
 		for _, repo := range managedRepos {
-			cmd.Printf("  %s\n", repo.Name)
+			cmd.Printf("  %s\n", repo.Path)
 		}
 
 		printed = true
@@ -71,7 +71,7 @@ func scanCommand(cmd *cobra.Command, args []string) error {
 		cmd.Println(output.NoticeStyle.Render("Unmanaged:"))
 
 		for _, repo := range unmanagedRepos {
-			cmd.Printf("  %s\n", repo.Name)
+			cmd.Printf("  %s\n", repo.Path)
 		}
 	}
 

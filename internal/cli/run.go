@@ -47,7 +47,7 @@ func runCommand(cmd *cobra.Command, args []string) error {
 		var buf bytes.Buffer
 
 		runErr := repository.Run(repo, name, commandArgs, &buf, &buf)
-		result := runResult{Name: repo.Name, Output: strings.TrimSpace(buf.String()), Error: runErr}
+		result := runResult{Name: repo.Path, Output: strings.TrimSpace(buf.String()), Error: runErr}
 
 		if runErr != nil {
 			failed = append(failed, result)

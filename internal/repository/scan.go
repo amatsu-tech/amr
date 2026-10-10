@@ -1,47 +1,55 @@
 package repository
 
 import (
-	"os"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/amatsu-tech/amr/internal/git"
 )
 
+// Scan рекурсивно ищет git-репозитории внутри workspace. Внутрь найденного
+// репозитория не заходит, скрытые каталоги (.amr, .git, ...) пропускает.
 func Scan(root string) ([]Repository, error) {
-	entries, err := os.ReadDir(root)
-	if err != nil {
-		return nil, err
-	}
-
 	repositories := make([]Repository, 0)
 
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
+	err := filepath.WalkDir(root, func(current string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !entry.IsDir() || current == root {
+			return nil
 		}
 
 		name := entry.Name()
 
-		// Скрытые каталоги (.workspace, .git, ...)
 		if len(name) > 0 && name[0] == '.' {
-			continue
+			return filepath.SkipDir
 		}
 
-		directory := filepath.Join(root, name)
-
-		isRepository, err := git.IsRepository(directory)
+		isRepository, err := git.IsRepository(current)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if !isRepository {
-			continue
+			return nil
+		}
+
+		relative, err := filepath.Rel(root, current)
+		if err != nil {
+			return err
 		}
 
 		repositories = append(repositories, Repository{
-			Name:      name,
-			Directory: directory,
+			Path:      filepath.ToSlash(relative),
+			Directory: current,
 		})
+
+		return filepath.SkipDir
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return repositories, nil

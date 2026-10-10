@@ -38,7 +38,7 @@ func pullCommand(cmd *cobra.Command, args []string) error {
 	var pulled, upToDate, skipped, failed []namedPullResult
 
 	for _, repo := range repositories {
-		result := namedPullResult{Name: repo.Name, PullResult: repository.Pull(repo)}
+		result := namedPullResult{Name: repo.Path, PullResult: repository.Pull(repo)}
 
 		switch result.Outcome {
 		case repository.PullUpdated:

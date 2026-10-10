@@ -9,7 +9,7 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add <repository>...",
+	Use:   "add <path>...",
 	Short: "Add one or more repositories to the workspace",
 	Args:  cobra.MinimumNArgs(1),
 	RunE:  addCommand,
@@ -41,7 +41,7 @@ func addCommand(cmd *cobra.Command, args []string) error {
 		cmd.Println(output.SuccessStyle.Render("Added:"))
 
 		for _, result := range added {
-			cmd.Printf("  %s\n", result.Name)
+			cmd.Printf("  %s\n", result.Path)
 		}
 	}
 
@@ -55,7 +55,7 @@ func addCommand(cmd *cobra.Command, args []string) error {
 		failedTable := output.NewTable("Repository", "Reason")
 
 		for _, result := range failed {
-			failedTable.Row(result.Name, result.Error.Error())
+			failedTable.Row(result.Path, result.Error.Error())
 		}
 
 		cmd.Println(failedTable.String())
