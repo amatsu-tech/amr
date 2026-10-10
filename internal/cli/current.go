@@ -11,7 +11,7 @@ func currentWorkspace() (string, error) {
 	root, err := workspace.Root()
 	if err != nil {
 		if errors.Is(err, workspace.ErrNotFound) {
-			return "", output.WithHint(err, "Initialize one with:\n  amr init")
+			return "", output.WithHint(err, "Initialize one here with:\n  amr init")
 		}
 
 		return "", err
