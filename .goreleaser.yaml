@@ -1,0 +1,53 @@
+version: 2
+
+project_name: amr
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: amr
+    main: ./cmd/amr
+    binary: amr
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/amatsu-tech/amr/internal/cli.version={{ .Tag }}
+      - -X github.com/amatsu-tech/amr/internal/cli.commit={{ .ShortCommit }}
+
+archives:
+  - id: amr
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    formats: [tar.gz]
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^feat(\([^)]+\))?!?:'
+      order: 100
+    - title: Bug Fixes
+      regexp: '^fix(\([^)]+\))?!?:'
+      order: 200
+    - title: Refactoring
+      regexp: '^refactor(\([^)]+\))?!?:'
+      order: 300
+    - title: Other
+      order: 999
+  filters:
+    exclude:
+      - '^chore(\([^)]+\))?!?:'
+      - '^docs(\([^)]+\))?!?:'
+      - '^test(\([^)]+\))?!?:'

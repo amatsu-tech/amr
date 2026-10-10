@@ -7,14 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	version = "dev"
-	commit  = "none"
-)
-
 var amrCmd = &cobra.Command{
 	Use:           "amr",
 	Short:         "Amatsu multi-repo: manage many Git repositories as one workspace",
+	Long:          "amr (Amatsu multi-repo) is a command-line tool for managing multiple Git repositories from a single interface.",
 	Version:       fmt.Sprintf("%s (commit: %s)", version, commit),
 	SilenceErrors: true,
 	SilenceUsage:  true,

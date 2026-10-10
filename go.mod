@@ -4,6 +4,7 @@ go 1.25.0
 
 require (
 	charm.land/lipgloss/v2 v2.0.5
+	github.com/goccy/go-yaml v1.19.2
 	github.com/spf13/cobra v1.10.2
 )
 

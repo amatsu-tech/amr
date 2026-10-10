@@ -1,0 +1,41 @@
+version: "3"
+
+vars:
+  APP_NAME: amr
+  BUILD_DIR: build
+
+tasks:
+  run:
+    desc: Run application
+    cmds:
+      - go run ./cmd/amr {{.CLI_ARGS}}
+
+  build:
+    desc: Build application
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.APP_NAME}} ./cmd/amr
+
+  start:
+    desc: Run built binary
+    deps:
+      - build
+    cmds:
+      - ./{{.BUILD_DIR}}/{{.APP_NAME}} {{.CLI_ARGS}}
+
+  fmt:
+    desc: Format code
+    cmds:
+      - gofmt -w .
+
+  tidy:
+    desc: Tidy dependencies
+    cmds:
+      - go mod tidy
+
+  check:
+    desc: Run all quality checks
+    deps:
+      - fmt
+      - tidy
+      - build

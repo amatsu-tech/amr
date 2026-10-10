@@ -1,0 +1,10 @@
+package repository
+
+import "errors"
+
+var (
+	ErrRepositoryNotFound   = errors.New("repository not found")
+	ErrRepositoryExists     = errors.New("repository already exists")
+	ErrRepositoryNotTracked = errors.New("repository is not tracked in this workspace")
+	ErrNotGitRepository     = errors.New("directory is not a git repository")
+)
