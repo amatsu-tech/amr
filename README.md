@@ -11,8 +11,8 @@ Clone every repository with one command, see the status of all of them at once, 
 ```bash
 cd ~/projects/my-company
 amr init        # create a workspace here
-amr scan        # find Git repositories, including nested ones like backend/catalog
-amr add frontend backend/catalog
+amr scan        # find Git repositories, including nested ones like services/api
+amr add frontend services/api
 amr status      # branch and changes of every repository
 ```
 
@@ -44,8 +44,8 @@ version: 1
 repositories:
   - path: frontend
     url: git@github.com:your-org/frontend.git
-  - path: backend/catalog
-    url: git@github.com:your-org/catalog.git
+  - path: services/api
+    url: git@github.com:your-org/api.git
 ```
 
 A repository without `origin` is saved without `url`, and `amr clone` skips it.

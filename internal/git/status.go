@@ -79,11 +79,16 @@ func Status(directory string) (StatusSummary, error) {
 		return StatusSummary{}, err
 	}
 
+	return parseStatus(string(output)), nil
+}
+
+// parseStatus разбирает вывод `git status --short --branch`.
+func parseStatus(output string) StatusSummary {
 	var summary StatusSummary
 
-	trimmed := strings.TrimSpace(string(output))
+	trimmed := strings.TrimSpace(output)
 	if trimmed == "" {
-		return summary, nil
+		return summary
 	}
 
 	for _, line := range strings.Split(trimmed, "\n") {
@@ -121,5 +126,5 @@ func Status(directory string) (StatusSummary, error) {
 		}
 	}
 
-	return summary, nil
+	return summary
 }

@@ -23,6 +23,21 @@ tasks:
     cmds:
       - ./{{.BUILD_DIR}}/{{.APP_NAME}} {{.CLI_ARGS}}
 
+  test:
+    desc: Run tests (one line per package)
+    cmds:
+      - go tool gotestsum --format pkgname -- ./... {{.CLI_ARGS}}
+
+  test:verbose:
+    desc: Run tests (one line per test)
+    cmds:
+      - go tool gotestsum --format testname -- ./... {{.CLI_ARGS}}
+
+  bench:
+    desc: Run benchmarks
+    cmds:
+      - go test ./... -run='^$' -bench=. -benchmem {{.CLI_ARGS}}
+
   fmt:
     desc: Format code
     cmds:
@@ -39,3 +54,4 @@ tasks:
       - fmt
       - tidy
       - build
+      - test
