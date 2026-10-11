@@ -26,12 +26,12 @@ tasks:
   test:
     desc: Run tests (one line per package)
     cmds:
-      - go tool gotestsum --format pkgname -- -cover ./... {{.CLI_ARGS}}
+      - go tool gotestsum --format pkgname -- -race -cover ./... {{.CLI_ARGS}}
 
   test:verbose:
     desc: Run tests (one line per test)
     cmds:
-      - go tool gotestsum --format testname -- -cover ./... {{.CLI_ARGS}}
+      - go tool gotestsum --format testname -- -race -cover ./... {{.CLI_ARGS}}
 
   cover:
     desc: Open test coverage report in the browser

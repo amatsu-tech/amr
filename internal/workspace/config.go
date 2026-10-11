@@ -57,16 +57,7 @@ func ReadConfig(root string) (Config, error) {
 	}
 
 	if probe.Version < WorkspaceConfigVersion {
-		config, err := migrateConfig(data, probe.Version)
-		if err != nil {
-			return Config{}, err
-		}
-
-		if err := WriteConfig(root, config); err != nil {
-			return Config{}, err
-		}
-
-		return config, nil
+		return Config{}, fmt.Errorf("%w: %d", ErrUnsupportedConfigVersion, probe.Version)
 	}
 
 	var config Config
