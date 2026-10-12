@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/amatsu-tech/amr/internal/cli/output"
+	"github.com/amatsu-tech/amr/internal/parallel"
 	"github.com/amatsu-tech/amr/internal/repository"
 	"github.com/spf13/cobra"
 )
@@ -37,9 +38,11 @@ func pullCommand(cmd *cobra.Command, args []string) error {
 
 	var pulled, upToDate, skipped, failed []namedPullResult
 
-	for _, repo := range repositories {
-		result := namedPullResult{Name: repo.Path, PullResult: repository.Pull(repo)}
+	results := parallel.Map(repositories, jobs, func(repo repository.Repository) namedPullResult {
+		return namedPullResult{Name: repo.Path, PullResult: repository.Pull(repo)}
+	})
 
+	for _, result := range results {
 		switch result.Outcome {
 		case repository.PullUpdated:
 			pulled = append(pulled, result)

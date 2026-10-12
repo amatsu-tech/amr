@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/amatsu-tech/amr/internal/gittest"
+	"github.com/amatsu-tech/amr/internal/parallel"
 )
 
 func TestParseStatus(t *testing.T) {
@@ -171,5 +172,31 @@ func TestStatusNotRepository(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "not a git repository") {
 		t.Errorf("Status() error = %q, want git's own explanation", err)
+	}
+}
+
+// jobs=1 — по очереди, jobs=8 — параллельно.
+func BenchmarkStatusRepositories(b *testing.B) {
+	gittest.Isolate(b)
+
+	const repos = 50
+
+	base := b.TempDir()
+	dirs := make([]string, repos)
+
+	for i := range dirs {
+		dirs[i] = filepath.Join(base, fmt.Sprintf("repo%d", i))
+		gittest.InitRepo(b, dirs[i])
+	}
+
+	for _, jobs := range []int{1, 8} {
+		b.Run(fmt.Sprintf("repos=%d/jobs=%d", repos, jobs), func(b *testing.B) {
+			for b.Loop() {
+				parallel.Map(dirs, jobs, func(dir string) error {
+					_, err := Status(dir)
+					return err
+				})
+			}
+		})
 	}
 }

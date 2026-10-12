@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/amatsu-tech/amr/internal/cli/output"
+	"github.com/amatsu-tech/amr/internal/parallel"
 	"github.com/amatsu-tech/amr/internal/repository"
 	"github.com/spf13/cobra"
 )
@@ -43,13 +44,16 @@ func runCommand(cmd *cobra.Command, args []string) error {
 
 	var succeeded, failed []runResult
 
-	for _, repo := range repositories {
+	results := parallel.Map(repositories, jobs, func(repo repository.Repository) runResult {
 		var buf bytes.Buffer
 
 		runErr := repository.Run(repo, name, commandArgs, &buf, &buf)
-		result := runResult{Name: repo.Path, Output: strings.TrimSpace(buf.String()), Error: runErr}
 
-		if runErr != nil {
+		return runResult{Name: repo.Path, Output: strings.TrimSpace(buf.String()), Error: runErr}
+	})
+
+	for _, result := range results {
+		if result.Error != nil {
 			failed = append(failed, result)
 			continue
 		}

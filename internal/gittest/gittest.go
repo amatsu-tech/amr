@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func Isolate(t *testing.T) {
+func Isolate(t testing.TB) {
 	t.Helper()
 
 	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
@@ -20,7 +20,7 @@ func Isolate(t *testing.T) {
 }
 
 // Run выполняет git в каталоге dir и возвращает вывод без пробелов по краям.
-func Run(t *testing.T, dir string, args ...string) string {
+func Run(t testing.TB, dir string, args ...string) string {
 	t.Helper()
 
 	cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
@@ -34,7 +34,7 @@ func Run(t *testing.T, dir string, args ...string) string {
 }
 
 // CommitFile создаёт или перезаписывает файл и коммитит его.
-func CommitFile(t *testing.T, dir, name, content string) {
+func CommitFile(t testing.TB, dir, name, content string) {
 	t.Helper()
 
 	if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
@@ -52,7 +52,7 @@ type Remote struct {
 }
 
 // NewRemote создаёт "сервер" с одним коммитом в ветке main.
-func NewRemote(t *testing.T) Remote {
+func NewRemote(t testing.TB) Remote {
 	t.Helper()
 
 	base := t.TempDir()
@@ -68,7 +68,7 @@ func NewRemote(t *testing.T) Remote {
 }
 
 // Push добавляет на "сервер" новый коммит с файлом name.
-func (r Remote) Push(t *testing.T, name string) {
+func (r Remote) Push(t testing.TB, name string) {
 	t.Helper()
 
 	CommitFile(t, r.seed, name, name+"\n")
@@ -76,14 +76,14 @@ func (r Remote) Push(t *testing.T, name string) {
 }
 
 // Clone клонирует url в dir.
-func Clone(t *testing.T, url, dir string) {
+func Clone(t testing.TB, url, dir string) {
 	t.Helper()
 
 	Run(t, filepath.Dir(dir), "clone", "-q", url, dir)
 }
 
 // InitRepo создаёт в dir локальный репозиторий без origin с одним коммитом.
-func InitRepo(t *testing.T, dir string) {
+func InitRepo(t testing.TB, dir string) {
 	t.Helper()
 
 	if err := os.MkdirAll(dir, 0o755); err != nil {

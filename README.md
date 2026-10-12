@@ -35,6 +35,8 @@ On another machine, copy `.amr/amr.yaml` into an empty folder and run `amr clone
 
 Every command except `init` works from any directory inside the workspace.
 
+`clone`, `status`, `pull` and `run` process up to 8 repositories at the same time. Change it with `--jobs` (`-j`), for example `amr pull -j 16`, or `amr run -j 1 -- <command>` to go one by one.
+
 ## Workspace config
 
 A workspace is a folder with `.amr/amr.yaml` at its root. `amr add` fills it in, taking the URL from the repository's `origin`:

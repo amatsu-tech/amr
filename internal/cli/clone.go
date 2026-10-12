@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/amatsu-tech/amr/internal/cli/output"
+	"github.com/amatsu-tech/amr/internal/parallel"
 	"github.com/amatsu-tech/amr/internal/repository"
 	"github.com/spf13/cobra"
 )
@@ -37,9 +38,11 @@ func cloneCommand(cmd *cobra.Command, args []string) error {
 
 	var cloned, exists, skipped, failed []namedCloneResult
 
-	for _, repo := range repositories {
-		result := namedCloneResult{Path: repo.Path, CloneResult: repository.Clone(repo)}
+	results := parallel.Map(repositories, jobs, func(repo repository.Repository) namedCloneResult {
+		return namedCloneResult{Path: repo.Path, CloneResult: repository.Clone(repo)}
+	})
 
+	for _, result := range results {
 		switch result.Outcome {
 		case repository.CloneCloned:
 			cloned = append(cloned, result)

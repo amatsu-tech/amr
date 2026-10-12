@@ -6,6 +6,7 @@ import (
 
 	"github.com/amatsu-tech/amr/internal/cli/output"
 	"github.com/amatsu-tech/amr/internal/git"
+	"github.com/amatsu-tech/amr/internal/parallel"
 	"github.com/amatsu-tech/amr/internal/repository"
 	"github.com/spf13/cobra"
 )
@@ -19,6 +20,12 @@ var statusCmd = &cobra.Command{
 type statusEntry struct {
 	Name    string
 	Summary git.StatusSummary
+}
+
+type repositoryStatus struct {
+	Path    string
+	Summary git.StatusSummary
+	Err     error
 }
 
 type unavailableEntry struct {
@@ -45,14 +52,19 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 	var clean, attention []statusEntry
 	var unavailable []unavailableEntry
 
-	for _, repo := range repositories {
+	statuses := parallel.Map(repositories, jobs, func(repo repository.Repository) repositoryStatus {
 		summary, err := git.Status(repo.Directory)
-		if err != nil {
-			unavailable = append(unavailable, unavailableEntry{Name: repo.Path, Reason: err.Error()})
+		return repositoryStatus{Path: repo.Path, Summary: summary, Err: err}
+	})
+
+	for _, status := range statuses {
+		if status.Err != nil {
+			unavailable = append(unavailable, unavailableEntry{Name: status.Path, Reason: status.Err.Error()})
 			continue
 		}
 
-		entry := statusEntry{Name: repo.Path, Summary: summary}
+		summary := status.Summary
+		entry := statusEntry{Name: status.Path, Summary: summary}
 
 		if summary.Clean() && summary.Ahead == 0 && summary.Behind == 0 {
 			clean = append(clean, entry)

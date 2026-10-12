@@ -7,6 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Значение флага --jobs.
+var jobs int
+
 var amrCmd = &cobra.Command{
 	Use:           "amr",
 	Short:         "Amatsu multi-repo: manage many Git repositories as one workspace",
@@ -14,10 +17,18 @@ var amrCmd = &cobra.Command{
 	Version:       fmt.Sprintf("%s (commit: %s)", version, commit),
 	SilenceErrors: true,
 	SilenceUsage:  true,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if jobs < 1 {
+			return fmt.Errorf("--jobs must be at least 1, got %d", jobs)
+		}
+
+		return nil
+	},
 }
 
 func init() {
 	amrCmd.SetVersionTemplate("{{.Name}} {{.Version}}\n")
+	amrCmd.PersistentFlags().IntVarP(&jobs, "jobs", "j", 8, "number of repositories to process at the same time")
 }
 
 func Execute() error {

@@ -137,7 +137,7 @@ func printComparison(out io.Writer, before, after results) {
 	for _, name := range after.names {
 		beforeValues, ok := before.samples[name]
 		if !ok {
-			fmt.Fprintf(table, "%s\t-\t%s\t\tnew benchmark\n", name, milliseconds(median(after.samples[name])))
+			fmt.Fprintf(table, "%s\t-\t%s\t\tnot in previous run\n", name, milliseconds(median(after.samples[name])))
 			continue
 		}
 
