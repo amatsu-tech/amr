@@ -5,13 +5,15 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/amatsu-tech/amr/internal/gittest"
 )
 
 func TestRun(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
 	dir := filepath.Join(t.TempDir(), "repo")
-	initRepo(t, dir)
+	gittest.InitRepo(t, dir)
 	repo := Repository{Path: "repo", Directory: dir}
 
 	var stdout, stderr bytes.Buffer

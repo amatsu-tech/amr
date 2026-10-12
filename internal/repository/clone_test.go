@@ -3,16 +3,18 @@ package repository
 import (
 	"path/filepath"
 	"testing"
+
+	"github.com/amatsu-tech/amr/internal/gittest"
 )
 
 func TestClone(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
 	root := newWorkspace(t)
-	remote := newRemote(t)
+	remote := gittest.NewRemote(t)
 
 	existing := filepath.Join(root, "existing-repo")
-	initRepo(t, existing)
+	gittest.InitRepo(t, existing)
 
 	tests := []struct {
 		name        string
@@ -57,7 +59,7 @@ func TestClone(t *testing.T) {
 
 	cloned := filepath.Join(root, "group", "cloned-repo")
 
-	if got := runGit(t, cloned, "config", "--get", "remote.origin.url"); got != remote.URL {
+	if got := gittest.Run(t, cloned, "config", "--get", "remote.origin.url"); got != remote.URL {
 		t.Errorf("cloned repository origin = %q, want %q", got, remote.URL)
 	}
 }

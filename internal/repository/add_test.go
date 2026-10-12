@@ -7,17 +7,18 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/amatsu-tech/amr/internal/gittest"
 	"github.com/amatsu-tech/amr/internal/workspace"
 )
 
 func TestAdd(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
 	root := newWorkspace(t)
-	remote := newRemote(t)
+	remote := gittest.NewRemote(t)
 
-	cloneInto(t, remote.URL, filepath.Join(root, "top-level-repo"))
-	initRepo(t, filepath.Join(root, "group", "repo-without-origin"))
+	gittest.Clone(t, remote.URL, filepath.Join(root, "top-level-repo"))
+	gittest.InitRepo(t, filepath.Join(root, "group", "repo-without-origin"))
 	makeDir(t, root, "plain-dir")
 
 	results, err := Add(root,
@@ -54,11 +55,11 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddDuplicate(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
 	root := newWorkspace(t)
 	repo := filepath.Join(root, "repo")
-	initRepo(t, repo)
+	gittest.InitRepo(t, repo)
 
 	if _, err := Add(root, repo); err != nil {
 		t.Fatal(err)
@@ -79,10 +80,10 @@ func TestAddDuplicate(t *testing.T) {
 }
 
 func TestAddRelativeToCurrentDirectory(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
 	root := newWorkspace(t)
-	initRepo(t, filepath.Join(root, "group", "nested-repo"))
+	gittest.InitRepo(t, filepath.Join(root, "group", "nested-repo"))
 	t.Chdir(filepath.Join(root, "group"))
 
 	results, err := Add(root, "nested-repo")
@@ -100,13 +101,13 @@ func TestAddRelativeToCurrentDirectory(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
 	root := newWorkspace(t)
 	first := filepath.Join(root, "first-repo")
 	second := filepath.Join(root, "group", "second-repo")
-	initRepo(t, first)
-	initRepo(t, second)
+	gittest.InitRepo(t, first)
+	gittest.InitRepo(t, second)
 
 	if _, err := Add(root, first, second); err != nil {
 		t.Fatal(err)

@@ -1,9 +1,14 @@
 package git
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/amatsu-tech/amr/internal/gittest"
 )
 
 func TestParseStatus(t *testing.T) {
@@ -100,5 +105,71 @@ func BenchmarkParseStatus(b *testing.B) {
 				parseStatus(output)
 			}
 		})
+	}
+}
+
+func TestStatus(t *testing.T) {
+	gittest.Isolate(t)
+
+	remote := gittest.NewRemote(t)
+	dir := filepath.Join(t.TempDir(), "repo")
+	gittest.Clone(t, remote.URL, dir)
+
+	clean, err := Status(dir)
+	if err != nil {
+		t.Fatalf("Status() error = %v", err)
+	}
+
+	want := StatusSummary{Branch: "main", HasUpstream: true}
+	if clean != want {
+		t.Errorf("Status() of a fresh clone = %+v, want %+v", clean, want)
+	}
+
+	if !clean.Clean() {
+		t.Error("Clean() = false for a fresh clone")
+	}
+
+	gittest.CommitFile(t, dir, "committed.txt", "x\n")
+
+	if err := os.WriteFile(filepath.Join(dir, "untracked.txt"), []byte("x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.WriteFile(filepath.Join(dir, "README.md"), []byte("changed\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	changed, err := Status(dir)
+	if err != nil {
+		t.Fatalf("Status() error = %v", err)
+	}
+
+	want = StatusSummary{Branch: "main", HasUpstream: true, Ahead: 1, Modified: 1, Untracked: 1}
+	if changed != want {
+		t.Errorf("Status() with changes = %+v, want %+v", changed, want)
+	}
+
+	if changed.Clean() {
+		t.Error("Clean() = true for a repository with changes")
+	}
+}
+
+func TestStatusMissingDirectory(t *testing.T) {
+	_, err := Status(filepath.Join(t.TempDir(), "missing"))
+	if !errors.Is(err, ErrDirectoryNotFound) {
+		t.Errorf("Status() error = %v, want %v", err, ErrDirectoryNotFound)
+	}
+}
+
+func TestStatusNotRepository(t *testing.T) {
+	gittest.Isolate(t)
+
+	_, err := Status(t.TempDir())
+	if err == nil {
+		t.Fatal("Status() of a plain directory succeeded, want error")
+	}
+
+	if !strings.Contains(err.Error(), "not a git repository") {
+		t.Errorf("Status() error = %q, want git's own explanation", err)
 	}
 }

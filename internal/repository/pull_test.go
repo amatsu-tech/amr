@@ -4,24 +4,26 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/amatsu-tech/amr/internal/gittest"
 )
 
 // clonedRepo клонирует remote в workspace и возвращает Repository для него.
-func clonedRepo(t *testing.T, remote testRemote) Repository {
+func clonedRepo(t *testing.T, remote gittest.Remote) Repository {
 	t.Helper()
 
 	dir := filepath.Join(t.TempDir(), "repo")
-	cloneInto(t, remote.URL, dir)
+	gittest.Clone(t, remote.URL, dir)
 
 	return Repository{Path: "repo", URL: remote.URL, Directory: dir}
 }
 
 func TestPullUpdated(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
-	remote := newRemote(t)
+	remote := gittest.NewRemote(t)
 	repo := clonedRepo(t, remote)
-	remote.push(t, "new-file.txt")
+	remote.Push(t, "new-file.txt")
 
 	result := Pull(repo)
 	if result.Outcome != PullUpdated {
@@ -34,9 +36,9 @@ func TestPullUpdated(t *testing.T) {
 }
 
 func TestPullUpToDate(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
-	repo := clonedRepo(t, newRemote(t))
+	repo := clonedRepo(t, gittest.NewRemote(t))
 
 	if result := Pull(repo); result.Outcome != PullUpToDate {
 		t.Errorf("Pull() outcome = %v (%s), want %v", result.Outcome, result.Reason, PullUpToDate)
@@ -44,11 +46,11 @@ func TestPullUpToDate(t *testing.T) {
 }
 
 func TestPullSkipsModifiedRepository(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
-	remote := newRemote(t)
+	remote := gittest.NewRemote(t)
 	repo := clonedRepo(t, remote)
-	remote.push(t, "new-file.txt")
+	remote.Push(t, "new-file.txt")
 
 	if err := os.WriteFile(filepath.Join(repo.Directory, "local-change.txt"), []byte("wip\n"), 0o644); err != nil {
 		t.Fatal(err)
@@ -66,16 +68,16 @@ func TestPullSkipsModifiedRepository(t *testing.T) {
 }
 
 func TestPullFailures(t *testing.T) {
-	isolateGit(t)
+	gittest.Isolate(t)
 
-	remote := newRemote(t)
+	remote := gittest.NewRemote(t)
 
 	diverged := clonedRepo(t, remote)
-	commitFile(t, diverged.Directory, "local-commit.txt", "local\n")
-	remote.push(t, "remote-commit.txt")
+	gittest.CommitFile(t, diverged.Directory, "local-commit.txt", "local\n")
+	remote.Push(t, "remote-commit.txt")
 
 	withoutUpstream := filepath.Join(t.TempDir(), "local-only")
-	initRepo(t, withoutUpstream)
+	gittest.InitRepo(t, withoutUpstream)
 
 	tests := []struct {
 		name       string
