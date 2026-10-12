@@ -28,6 +28,8 @@ var amrCmd = &cobra.Command{
 
 func init() {
 	amrCmd.SetVersionTemplate("{{.Name}} {{.Version}}\n")
+	amrCmd.SetOut(output.Stdout)
+	amrCmd.SetErr(output.Stderr)
 	amrCmd.PersistentFlags().IntVarP(&jobs, "jobs", "j", 8, "number of repositories to process at the same time")
 }
 
