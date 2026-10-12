@@ -40,9 +40,25 @@ tasks:
       - go tool cover -html=coverage.out
 
   bench:
-    desc: Run benchmarks
+    desc: Run benchmarks and show time per call in milliseconds (the previous run is kept for bench:compare)
+    silent: true
     cmds:
-      - go test ./... -run='^$' -bench=. -benchmem {{.CLI_ARGS}}
+      - mkdir -p {{.BUILD_DIR}}
+      - if [ -f {{.BUILD_DIR}}/bench.txt ]; then mv {{.BUILD_DIR}}/bench.txt {{.BUILD_DIR}}/bench.old.txt; fi
+      - echo "Running benchmarks..."
+      - go test ./... -run='^$' -bench=. -benchmem -count=6 -benchtime=200ms {{.CLI_ARGS}} > {{.BUILD_DIR}}/bench.txt
+      - go run ./internal/tools/benchtable {{.BUILD_DIR}}/bench.txt
+
+  bench:compare:
+    desc: Compare time per call between the last two benchmark runs
+    silent: true
+    cmds:
+      - go run ./internal/tools/benchtable {{.BUILD_DIR}}/bench.old.txt {{.BUILD_DIR}}/bench.txt
+
+  bench:full:
+    desc: Show the last benchmark run with time, memory and allocations
+    cmds:
+      - go tool benchstat current={{.BUILD_DIR}}/bench.txt
 
   fmt:
     desc: Format code

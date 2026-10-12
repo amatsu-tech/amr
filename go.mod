@@ -1,14 +1,16 @@
 module github.com/amatsu-tech/amr
 
-go 1.25.0
+go 1.26.0
 
 require (
 	charm.land/lipgloss/v2 v2.0.5
 	github.com/goccy/go-yaml v1.19.2
 	github.com/spf13/cobra v1.10.2
+	golang.org/x/perf v0.0.0-20261009192801-be2c69fb417e
 )
 
 require (
+	github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794 // indirect
 	github.com/bitfield/gotestdox v0.2.2 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318 // indirect
@@ -31,13 +33,16 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/term v0.35.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/tools v0.51.0 // indirect
 	gotest.tools/gotestsum v1.13.0 // indirect
 )
 
-tool gotest.tools/gotestsum
+tool (
+	golang.org/x/perf/cmd/benchstat
+	gotest.tools/gotestsum
+)
