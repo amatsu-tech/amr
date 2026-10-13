@@ -12,7 +12,7 @@ Clone every repository with one command, see the status of all of them at once, 
 cd ~/projects/my-company
 amr init        # create a workspace here
 amr scan        # find Git repositories, including nested ones like services/api
-amr add frontend services/api
+amr add --all   # add every repository found
 amr status      # branch and changes of every repository
 ```
 
@@ -24,7 +24,7 @@ On another machine, copy `.amr/amr.yaml` into an empty folder and run `amr clone
 | --- | --- |
 | `amr init [directory]` | Create a workspace in the current or given directory |
 | `amr scan` | Find Git repositories in the workspace and show which are managed |
-| `amr add <path>...` | Add repositories to the workspace (paths are relative to the current directory) |
+| `amr add [<path>...]` | Add repositories to the workspace (paths are relative to the current directory). `--all` adds every repository found |
 | `amr remove <path>...` | Remove repositories from the workspace (files on disk are kept) |
 | `amr list` | List managed repositories |
 | `amr clone` | Clone every managed repository that is missing on disk |
