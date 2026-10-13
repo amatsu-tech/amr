@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/amatsu-tech/amr/compare/v0.2.0...v0.3.0) (2026-10-13)
+
+
+### Features
+
+* choose repositories by path and group ([7c861be](https://github.com/amatsu-tech/amr/commit/7c861befb0befda1b7c56879673947b24f3bd29d))
+* create a workspace .gitignore on amr init ([ebba1a8](https://github.com/amatsu-tech/amr/commit/ebba1a851a4ced01f1011e017f10316507dd99fc))
+* sync the workspace config and all repositories with amr sync ([a736d81](https://github.com/amatsu-tech/amr/commit/a736d81180a8e76ddeda9f5f4dffbd3cff8343f7))
+
+
+### Refactoring
+
+* share group flag text and empty workspace message ([d2bfd31](https://github.com/amatsu-tech/amr/commit/d2bfd31246c289e236e48c3b4085329a7a280cd9))
+
 ## [0.2.0](https://github.com/amatsu-tech/amr/compare/v0.1.0...v0.2.0) (2026-10-13)
 
 
