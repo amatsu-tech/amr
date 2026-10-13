@@ -69,7 +69,7 @@ A repository without `origin` is saved without `url`, and `amr clone` skips it.
 
 ### Sharing a workspace with a team
 
-Keep the config in its own Git repository, for example `your-org/acme-workspace`, with this `.gitignore` so the cloned repositories are not tracked:
+Keep the config in its own Git repository, for example `your-org/acme-workspace`. `amr init` creates a `.gitignore` that keeps the cloned repositories out of it (unless the folder already has a `.gitignore` or is a Git repository itself):
 
 ```gitignore
 /*

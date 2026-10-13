@@ -29,6 +29,15 @@ func initCommand(cmd *cobra.Command, args []string) error {
 
 	cmd.Printf("Initialized workspace in %s\n", root)
 
+	created, err := workspace.CreateGitignore(root)
+	if err != nil {
+		return err
+	}
+
+	if created {
+		cmd.Println("Created .gitignore: if you put the workspace into Git, only the amr config is tracked, not the repositories")
+	}
+
 	return nil
 }
 
