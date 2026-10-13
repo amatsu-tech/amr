@@ -30,6 +30,7 @@ On another machine, copy `.amr/amr.yaml` into an empty folder and run `amr clone
 | `amr clone` | Clone repositories that are missing on disk |
 | `amr status` | Show branch and changes of repositories |
 | `amr pull` | Fast-forward clean repositories from their upstream |
+| `amr sync` | Pull the workspace config (if it is a Git repository), clone missing repositories and pull the rest |
 | `amr run -- <command>...` | Run a command in repositories |
 | `amr root` | Print the workspace root |
 
@@ -37,7 +38,7 @@ Every command except `init` works from any directory inside the workspace.
 
 ## Choosing repositories
 
-`list`, `clone`, `status`, `pull` and `run` work with every repository by default. Pass paths or groups to work with some of them:
+`list`, `clone`, `status`, `pull`, `sync` and `run` work with every repository by default. Pass paths or groups to work with some of them:
 
 ```bash
 amr pull frontend services/api        # these repositories
@@ -49,7 +50,7 @@ amr run -g backend -- go test ./...   # for run, put paths and groups before --
 
 Groups are set when adding repositories (`amr add -g backend services/api`) or in the config.
 
-`clone`, `status`, `pull` and `run` process up to 8 repositories at the same time. Change it with `--jobs` (`-j`), for example `amr pull -j 16`, or `amr run -j 1 -- <command>` to go one by one.
+`clone`, `status`, `pull`, `sync` and `run` process up to 8 repositories at the same time. Change it with `--jobs` (`-j`), for example `amr pull -j 16`, or `amr run -j 1 -- <command>` to go one by one.
 
 ## Workspace config
 
@@ -83,8 +84,10 @@ A new teammate then gets the whole layout with:
 ```bash
 git clone git@github.com:your-org/acme-workspace.git acme
 cd acme
-amr clone
+amr sync
 ```
+
+Later, `amr sync` keeps everything current: it pulls the config first, so repositories added by others are cloned too.
 
 ## Development
 
