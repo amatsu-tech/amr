@@ -8,4 +8,5 @@ var (
 	ErrRepositoryNotTracked = errors.New("repository is not tracked in this workspace")
 	ErrNotGitRepository     = errors.New("directory is not a git repository")
 	ErrOutsideWorkspace     = errors.New("path is outside the workspace")
+	ErrUnknownGroup         = errors.New("no repositories in group")
 )

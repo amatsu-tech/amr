@@ -16,7 +16,7 @@ func TestUnmanaged(t *testing.T) {
 	gittest.InitRepo(t, filepath.Join(root, "group", "new-repo"))
 	gittest.InitRepo(t, filepath.Join(root, "another-new-repo"))
 
-	if _, err := Add(root, filepath.Join(root, "managed-repo")); err != nil {
+	if _, err := Add(root, nil, filepath.Join(root, "managed-repo")); err != nil {
 		t.Fatal(err)
 	}
 
@@ -42,7 +42,7 @@ func TestUnmanagedAllAdded(t *testing.T) {
 	repo := filepath.Join(root, "repo")
 	gittest.InitRepo(t, repo)
 
-	if _, err := Add(root, repo); err != nil {
+	if _, err := Add(root, nil, repo); err != nil {
 		t.Fatal(err)
 	}
 

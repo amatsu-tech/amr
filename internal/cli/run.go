@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -12,10 +13,13 @@ import (
 )
 
 var runCmd = &cobra.Command{
-	Use:   "run -- <command>...",
-	Short: "Run a command in every managed repository",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  runCommand,
+	Use:   "run [<path>...] -- <command>...",
+	Short: "Run a command in repositories",
+	Example: `  amr run -- git fetch
+  amr run -g backend -- go test ./...
+  amr run frontend infra -- git log -1 --oneline`,
+	Args: cobra.ArbitraryArgs,
+	RunE: runCommand,
 }
 
 type runResult struct {
@@ -30,7 +34,17 @@ func runCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositories, err := repository.List(root)
+	// Всё до -- — пути репозиториев, после — команда.
+	paths, command := []string{}, args
+	if dash := cmd.ArgsLenAtDash(); dash > 0 {
+		paths, command = args[:dash], args[dash:]
+	}
+
+	if len(command) == 0 {
+		return errors.New("no command to run, put it after --")
+	}
+
+	repositories, err := selectedRepositories(root, paths)
 	if err != nil {
 		return err
 	}
@@ -40,7 +54,7 @@ func runCommand(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	name, commandArgs := args[0], args[1:]
+	name, commandArgs := command[0], command[1:]
 
 	var succeeded, failed []runResult
 
@@ -114,5 +128,6 @@ func runCommand(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
+	addGroupFlag(runCmd, "only repositories in these groups (comma-separated `names` or repeated)")
 	amrCmd.AddCommand(runCmd)
 }

@@ -18,7 +18,8 @@ var addCmd = &cobra.Command{
 
 Use --all to add every repository found in the workspace that is not added yet.`,
 	Example: `  amr add services/api web
-  amr add --all`,
+  amr add --all
+  amr add -g backend services/api`,
 	Args: cobra.ArbitraryArgs,
 	RunE: addCommand,
 }
@@ -34,7 +35,7 @@ func addCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	results, err := repository.Add(root, paths...)
+	results, err := repository.Add(root, groups, paths...)
 	if err != nil {
 		return err
 	}
@@ -125,5 +126,6 @@ func pathsToAdd(cmd *cobra.Command, root string, args []string) ([]string, error
 
 func init() {
 	addCmd.Flags().BoolVar(&addAll, "all", false, "add every repository found in the workspace")
+	addGroupFlag(addCmd, "put added repositories into these groups (comma-separated `names` or repeated)")
 	amrCmd.AddCommand(addCmd)
 }

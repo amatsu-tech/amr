@@ -24,16 +24,30 @@ On another machine, copy `.amr/amr.yaml` into an empty folder and run `amr clone
 | --- | --- |
 | `amr init [directory]` | Create a workspace in the current or given directory |
 | `amr scan` | Find Git repositories in the workspace and show which are managed |
-| `amr add [<path>...]` | Add repositories to the workspace (paths are relative to the current directory). `--all` adds every repository found |
+| `amr add [<path>...]` | Add repositories to the workspace (paths are relative to the current directory). `--all` adds every repository found, `-g` puts them into a group |
 | `amr remove <path>...` | Remove repositories from the workspace (files on disk are kept) |
-| `amr list` | List managed repositories |
-| `amr clone` | Clone every managed repository that is missing on disk |
-| `amr status` | Show branch and changes of every managed repository |
-| `amr pull` | Fast-forward every clean repository from its upstream |
-| `amr run -- <command>...` | Run a command in every managed repository |
+| `amr list` | List managed repositories and their groups |
+| `amr clone` | Clone repositories that are missing on disk |
+| `amr status` | Show branch and changes of repositories |
+| `amr pull` | Fast-forward clean repositories from their upstream |
+| `amr run -- <command>...` | Run a command in repositories |
 | `amr root` | Print the workspace root |
 
 Every command except `init` works from any directory inside the workspace.
+
+## Choosing repositories
+
+`list`, `clone`, `status`, `pull` and `run` work with every repository by default. Pass paths or groups to work with some of them:
+
+```bash
+amr pull frontend services/api        # these repositories
+amr pull -g backend                   # repositories in the backend group
+amr pull -g backend,web               # in any of these groups (or -g backend -g web)
+amr pull infra -g backend             # paths and groups together
+amr run -g backend -- go test ./...   # for run, put paths and groups before --
+```
+
+Groups are set when adding repositories (`amr add -g backend services/api`) or in the config.
 
 `clone`, `status`, `pull` and `run` process up to 8 repositories at the same time. Change it with `--jobs` (`-j`), for example `amr pull -j 16`, or `amr run -j 1 -- <command>` to go one by one.
 
@@ -48,9 +62,29 @@ repositories:
     url: git@github.com:your-org/frontend.git
   - path: services/api
     url: git@github.com:your-org/api.git
+    groups: [backend]
 ```
 
 A repository without `origin` is saved without `url`, and `amr clone` skips it.
+
+### Sharing a workspace with a team
+
+Keep the config in its own Git repository, for example `your-org/acme-workspace`, with this `.gitignore` so the cloned repositories are not tracked:
+
+```gitignore
+/*
+!/.amr/
+!/.gitignore
+!/README.md
+```
+
+A new teammate then gets the whole layout with:
+
+```bash
+git clone git@github.com:your-org/acme-workspace.git acme
+cd acme
+amr clone
+```
 
 ## Development
 
@@ -59,5 +93,7 @@ Requires Go and [Task](https://taskfile.dev).
 ```bash
 task run -- --help   # run from source
 task build           # build binary into build/amr
-task check           # format, tidy, build
+task check           # format, tidy, build, test
+task test            # run tests
+task bench           # run benchmarks
 ```

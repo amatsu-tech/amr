@@ -1,12 +1,15 @@
 package cli
 
 import (
-	"github.com/amatsu-tech/amr/internal/repository"
+	"fmt"
+	"strings"
+	"text/tabwriter"
+
 	"github.com/spf13/cobra"
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
+	Use:   "list [<path>...]",
 	Short: "List repositories in the workspace",
 	RunE:  listCommand,
 }
@@ -17,7 +20,7 @@ func listCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositories, err := repository.List(root)
+	repositories, err := selectedRepositories(root, args)
 	if err != nil {
 		return err
 	}
@@ -27,13 +30,16 @@ func listCommand(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	for _, repository := range repositories {
-		cmd.Println(repository.Path)
+	table := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
+
+	for _, repo := range repositories {
+		fmt.Fprintf(table, "%s\t%s\n", repo.Path, strings.Join(repo.Groups, ", "))
 	}
 
-	return nil
+	return table.Flush()
 }
 
 func init() {
+	addGroupFlag(listCmd, "only repositories in these groups (comma-separated `names` or repeated)")
 	amrCmd.AddCommand(listCmd)
 }

@@ -10,8 +10,8 @@ import (
 )
 
 var pullCmd = &cobra.Command{
-	Use:   "pull",
-	Short: "Fast-forward every managed repository from its upstream",
+	Use:   "pull [<path>...]",
+	Short: "Fast-forward repositories from their upstream",
 	RunE:  pullCommand,
 }
 
@@ -26,7 +26,7 @@ func pullCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositories, err := repository.List(root)
+	repositories, err := selectedRepositories(root, args)
 	if err != nil {
 		return err
 	}
@@ -138,5 +138,6 @@ func pullCommand(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
+	addGroupFlag(pullCmd, "only repositories in these groups (comma-separated `names` or repeated)")
 	amrCmd.AddCommand(pullCmd)
 }

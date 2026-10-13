@@ -16,6 +16,7 @@ func List(root string) ([]Repository, error) {
 		repositories[i] = Repository{
 			Path:      entry.Path,
 			URL:       entry.URL,
+			Groups:    entry.Groups,
 			Directory: directory(root, entry.Path),
 		}
 	}

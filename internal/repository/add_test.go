@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"slices"
+	"reflect"
 	"testing"
 
 	"github.com/amatsu-tech/amr/internal/gittest"
@@ -21,7 +21,7 @@ func TestAdd(t *testing.T) {
 	gittest.InitRepo(t, filepath.Join(root, "group", "repo-without-origin"))
 	makeDir(t, root, "plain-dir")
 
-	results, err := Add(root,
+	results, err := Add(root, nil,
 		filepath.Join(root, "top-level-repo"),
 		filepath.Join(root, "group", "repo-without-origin"),
 		filepath.Join(root, "plain-dir"),
@@ -49,7 +49,7 @@ func TestAdd(t *testing.T) {
 		{Path: "group/repo-without-origin"},
 	}
 
-	if got := readEntries(t, root); !slices.Equal(got, want) {
+	if got := readEntries(t, root); !reflect.DeepEqual(got, want) {
 		t.Errorf("config repositories = %+v, want %+v", got, want)
 	}
 }
@@ -61,11 +61,11 @@ func TestAddDuplicate(t *testing.T) {
 	repo := filepath.Join(root, "repo")
 	gittest.InitRepo(t, repo)
 
-	if _, err := Add(root, repo); err != nil {
+	if _, err := Add(root, nil, repo); err != nil {
 		t.Fatal(err)
 	}
 
-	results, err := Add(root, repo)
+	results, err := Add(root, nil, repo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,7 +86,7 @@ func TestAddRelativeToCurrentDirectory(t *testing.T) {
 	gittest.InitRepo(t, filepath.Join(root, "group", "nested-repo"))
 	t.Chdir(filepath.Join(root, "group"))
 
-	results, err := Add(root, "nested-repo")
+	results, err := Add(root, nil, "nested-repo")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +109,7 @@ func TestRemove(t *testing.T) {
 	gittest.InitRepo(t, first)
 	gittest.InitRepo(t, second)
 
-	if _, err := Add(root, first, second); err != nil {
+	if _, err := Add(root, nil, first, second); err != nil {
 		t.Fatal(err)
 	}
 
@@ -132,7 +132,7 @@ func TestRemove(t *testing.T) {
 
 	want := []workspace.RepositoryEntry{{Path: "group/second-repo"}}
 
-	if got := readEntries(t, root); !slices.Equal(got, want) {
+	if got := readEntries(t, root); !reflect.DeepEqual(got, want) {
 		t.Errorf("config repositories = %+v, want %+v", got, want)
 	}
 
@@ -165,7 +165,25 @@ func TestList(t *testing.T) {
 		{Path: "group/nested-repo", Directory: filepath.Join(root, "group", "nested-repo")},
 	}
 
-	if !slices.Equal(got, want) {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("List() = %+v, want %+v", got, want)
+	}
+}
+
+func TestAddWithGroups(t *testing.T) {
+	gittest.Isolate(t)
+
+	root := newWorkspace(t)
+	repo := filepath.Join(root, "group", "nested-repo")
+	gittest.InitRepo(t, repo)
+
+	if _, err := Add(root, []string{"backend", "idp"}, repo); err != nil {
+		t.Fatal(err)
+	}
+
+	want := []workspace.RepositoryEntry{{Path: "group/nested-repo", Groups: []string{"backend", "idp"}}}
+
+	if got := readEntries(t, root); !reflect.DeepEqual(got, want) {
+		t.Errorf("config repositories = %+v, want %+v", got, want)
 	}
 }

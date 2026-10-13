@@ -13,8 +13,8 @@ import (
 )
 
 var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Show workspace status",
+	Use:   "status [<path>...]",
+	Short: "Show branch and changes of repositories",
 	RunE:  statusCommand,
 }
 
@@ -41,7 +41,7 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositories, err := repository.List(root)
+	repositories, err := selectedRepositories(root, args)
 	if err != nil {
 		return err
 	}
@@ -198,5 +198,6 @@ func formatStatus(summary git.StatusSummary) string {
 }
 
 func init() {
+	addGroupFlag(statusCmd, "only repositories in these groups (comma-separated `names` or repeated)")
 	amrCmd.AddCommand(statusCmd)
 }

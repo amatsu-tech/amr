@@ -10,8 +10,8 @@ import (
 )
 
 var cloneCmd = &cobra.Command{
-	Use:   "clone",
-	Short: "Clone every managed repository that is missing on disk",
+	Use:   "clone [<path>...]",
+	Short: "Clone repositories that are missing on disk",
 	RunE:  cloneCommand,
 }
 
@@ -26,7 +26,7 @@ func cloneCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositories, err := repository.List(root)
+	repositories, err := selectedRepositories(root, args)
 	if err != nil {
 		return err
 	}
@@ -138,5 +138,6 @@ func cloneCommand(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
+	addGroupFlag(cloneCmd, "only repositories in these groups (comma-separated `names` or repeated)")
 	amrCmd.AddCommand(cloneCmd)
 }

@@ -8,8 +8,9 @@ import (
 )
 
 type RepositoryEntry struct {
-	Path string `yaml:"path"`
-	URL  string `yaml:"url,omitempty"`
+	Path   string   `yaml:"path"`
+	URL    string   `yaml:"url,omitempty"`
+	Groups []string `yaml:"groups,omitempty,flow"`
 }
 
 type Config struct {

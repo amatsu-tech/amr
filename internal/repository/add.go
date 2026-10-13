@@ -14,7 +14,8 @@ type AddResult struct {
 	Error error
 }
 
-func Add(root string, paths ...string) ([]AddResult, error) {
+// Add добавляет репозитории в конфиг; groups записываются каждому добавленному.
+func Add(root string, groups []string, paths ...string) ([]AddResult, error) {
 	config, err := workspace.ReadConfig(root)
 	if err != nil {
 		return nil, err
@@ -64,8 +65,9 @@ func Add(root string, paths ...string) ([]AddResult, error) {
 		}
 
 		config.Repositories = append(config.Repositories, workspace.RepositoryEntry{
-			Path: path,
-			URL:  url,
+			Path:   path,
+			URL:    url,
+			Groups: groups,
 		})
 		results = append(results, AddResult{Path: path})
 	}

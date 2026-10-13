@@ -3,7 +3,7 @@ package workspace
 import (
 	"errors"
 	"os"
-	"slices"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -37,7 +37,7 @@ func TestConfigRoundTrip(t *testing.T) {
 		t.Fatalf("ReadConfig() error = %v", err)
 	}
 
-	if got.Version != want.Version || !slices.Equal(got.Repositories, want.Repositories) {
+	if got.Version != want.Version || !reflect.DeepEqual(got.Repositories, want.Repositories) {
 		t.Errorf("ReadConfig() = %+v, want %+v", got, want)
 	}
 }
