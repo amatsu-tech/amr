@@ -38,9 +38,15 @@ func cloneCommand(cmd *cobra.Command, args []string) error {
 
 	var cloned, exists, skipped, failed []namedCloneResult
 
+	progress := output.NewProgress("Cloning", len(repositories))
+
 	results := parallel.Map(repositories, jobs, func(repo repository.Repository) namedCloneResult {
+		defer progress.Advance()
+
 		return namedCloneResult{Path: repo.Path, CloneResult: repository.Clone(repo)}
 	})
+
+	progress.Finish()
 
 	for _, result := range results {
 		switch result.Outcome {

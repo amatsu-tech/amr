@@ -38,9 +38,15 @@ func pullCommand(cmd *cobra.Command, args []string) error {
 
 	var pulled, upToDate, skipped, failed []namedPullResult
 
+	progress := output.NewProgress("Pulling", len(repositories))
+
 	results := parallel.Map(repositories, jobs, func(repo repository.Repository) namedPullResult {
+		defer progress.Advance()
+
 		return namedPullResult{Name: repo.Path, PullResult: repository.Pull(repo)}
 	})
+
+	progress.Finish()
 
 	for _, result := range results {
 		switch result.Outcome {
