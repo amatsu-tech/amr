@@ -50,7 +50,7 @@ func runCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(repositories) == 0 {
-		cmd.Println("No repositories have been added to this workspace.")
+		cmd.Println(noRepositoriesMessage)
 		return nil
 	}
 
@@ -128,6 +128,6 @@ func runCommand(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	addGroupFlag(runCmd, "only repositories in these groups (comma-separated `names` or repeated)")
+	addGroupFilterFlag(runCmd)
 	amrCmd.AddCommand(runCmd)
 }

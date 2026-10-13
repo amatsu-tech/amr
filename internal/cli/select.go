@@ -12,6 +12,14 @@ func addGroupFlag(cmd *cobra.Command, usage string) {
 	cmd.Flags().StringSliceVarP(&groups, "group", "g", nil, usage)
 }
 
+// addGroupFilterFlag — флаг --group для команд, которые выбирают репозитории по группам.
+func addGroupFilterFlag(cmd *cobra.Command) {
+	addGroupFlag(cmd, "only repositories in these groups (comma-separated `names` or repeated)")
+}
+
+// Сообщение, когда в workspace ещё нет ни одного репозитория.
+const noRepositoriesMessage = "No repositories have been added to this workspace."
+
 // selectedRepositories — репозитории workspace, выбранные путями из args и флагом --group.
 // Без путей и групп — все.
 func selectedRepositories(root string, paths []string) ([]repository.Repository, error) {

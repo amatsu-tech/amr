@@ -47,7 +47,7 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(repositories) == 0 {
-		cmd.Println("No repositories have been added to this workspace.")
+		cmd.Println(noRepositoriesMessage)
 		return nil
 	}
 
@@ -198,6 +198,6 @@ func formatStatus(summary git.StatusSummary) string {
 }
 
 func init() {
-	addGroupFlag(statusCmd, "only repositories in these groups (comma-separated `names` or repeated)")
+	addGroupFilterFlag(statusCmd)
 	amrCmd.AddCommand(statusCmd)
 }
