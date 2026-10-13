@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -24,6 +25,7 @@ type statusEntry struct {
 
 type repositoryStatus struct {
 	Path    string
+	URL     string
 	Summary git.StatusSummary
 	Err     error
 }
@@ -54,10 +56,17 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 
 	statuses := parallel.Map(repositories, jobs, func(repo repository.Repository) repositoryStatus {
 		summary, err := git.Status(repo.Directory)
-		return repositoryStatus{Path: repo.Path, Summary: summary, Err: err}
+		return repositoryStatus{Path: repo.Path, URL: repo.URL, Summary: summary, Err: err}
 	})
 
+	// Сколько отсутствующих на диске репозиториев можно скачать через amr clone.
+	cloneable := 0
+
 	for _, status := range statuses {
+		if errors.Is(status.Err, git.ErrDirectoryNotFound) && status.URL != "" {
+			cloneable++
+		}
+
 		if status.Err != nil {
 			unavailable = append(unavailable, unavailableEntry{Name: status.Path, Reason: status.Err.Error()})
 			continue
@@ -135,6 +144,11 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 		output.SummaryLine{Symbol: "•", Style: output.NoticeStyle, Count: len(attention), Label: "need attention"},
 		output.SummaryLine{Symbol: "✗", Style: output.ErrorStyle, Count: len(unavailable), Label: "unavailable"},
 	))
+
+	if cloneable > 0 {
+		cmd.Println()
+		cmd.Println("Clone missing repositories with:\n  amr clone")
+	}
 
 	if len(unavailable) > 0 {
 		return output.Silent(fmt.Errorf("%d unavailable", len(unavailable)))
