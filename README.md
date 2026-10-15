@@ -8,6 +8,46 @@ Clone every repository with one command, see the state of each one, update every
 
 > Work in progress. Commands and the config format may change before version 1.0.
 
+## Installation
+
+amr needs [Git](https://git-scm.com) to be installed.
+
+### Download a ready binary
+
+Ready-made archives are on the [Releases](https://github.com/amatsu-tech/amr/releases) page:
+
+| System | File |
+| --- | --- |
+| macOS (Apple Silicon: M1 and newer) | `amr_<version>_darwin_arm64.tar.gz` |
+| macOS (Intel) | `amr_<version>_darwin_amd64.tar.gz` |
+| Linux | `amr_<version>_linux_amd64.tar.gz` or `amr_<version>_linux_arm64.tar.gz` |
+
+There are no archives for Windows, amr is installed [with Go](#with-go) there.
+
+Unpack the archive and move `amr` to a folder in `PATH`:
+
+```bash
+tar -xzf amr_*_darwin_arm64.tar.gz
+sudo mv amr /usr/local/bin/
+amr --version
+```
+
+On macOS, a file downloaded in a browser may be blocked with "cannot be opened because the developer cannot be verified". Remove the block with:
+
+```bash
+xattr -d com.apple.quarantine /usr/local/bin/amr
+```
+
+### With Go
+
+Works on macOS, Linux and Windows. Requires [Go](https://go.dev/dl/):
+
+```bash
+go install github.com/amatsu-tech/amr/cmd/amr@latest
+```
+
+`amr` is installed into `~/go/bin` (`%USERPROFILE%\go\bin` on Windows), this folder needs to be in `PATH`.
+
 ## Quick start
 
 ```bash
@@ -22,7 +62,7 @@ To share the workspace with your team and get the same folder layout on any mach
 
 ## What a workspace is
 
-A workspace is a folder that holds your repositories and has a service folder `.amr` with the config at its root. For example:
+A workspace is a folder that holds the repositories of a project and has a service folder `.amr` with the config at its root. For example:
 
 ```
 my-company/
@@ -64,7 +104,7 @@ amr pull frontend services/api        # only these repositories
 amr pull -g backend                   # repositories in the backend group
 amr pull -g backend,web               # in any of these groups (or -g backend -g web)
 amr pull infra -g backend             # a path and a group together
-amr pull .                            # the repository you are in, even from its subfolder
+amr pull .                            # the current repository, even from its subfolder
 amr run -g backend -- go test ./...   # for run, put paths and groups before --
 ```
 
@@ -85,18 +125,20 @@ Groups are set when adding repositories (`amr add -g backend services/api`) or d
 
 ```bash
 amr stash -m login-fix          # stash under the name login-fix
-amr stash . -m login-fix        # only in the repository you are in
+amr stash . -m login-fix        # only in the current repository
 amr stash list                  # amr stashes by name and the repositories that have them
 amr stash pop login-fix         # restore login-fix everywhere and remove it
 amr stash pop                   # restore the latest amr stash in each repository
 amr stash drop login-fix        # remove login-fix without restoring
 ```
 
-This is handy when one task spans several repositories: stash all of them with one name and get them back later with one command.
+This is handy when one task spans several repositories: changes in all of them are stashed under one name and restored with one command.
 
 Without `-m`, the name is generated from the current time, for example `amr-2026-10-15-143005`, and is printed after stashing.
 
 amr finds stashes by name, so you don't need numbers like `stash@{2}`. Your regular `git stash` entries are not affected.
+
+`amr stash` also works in any Git repository without a workspace (no `.amr`): then it works with the current repository, even from its subfolder. Paths and groups are not available there.
 
 ## Working in parallel
 

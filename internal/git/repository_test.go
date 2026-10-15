@@ -55,3 +55,35 @@ func TestIsRepository(t *testing.T) {
 		})
 	}
 }
+
+func TestTopLevel(t *testing.T) {
+	gittest.Isolate(t)
+
+	repo := filepath.Join(t.TempDir(), "repo")
+	gittest.InitRepo(t, repo)
+
+	subfolder := filepath.Join(repo, "internal", "pkg")
+	if err := os.MkdirAll(subfolder, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	want, err := filepath.EvalSymlinks(repo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, dir := range []string{repo, subfolder} {
+		got, err := TopLevel(dir)
+		if err != nil {
+			t.Fatalf("TopLevel(%s) error = %v", dir, err)
+		}
+
+		if got != want {
+			t.Errorf("TopLevel(%s) = %q, want %q", dir, got, want)
+		}
+	}
+
+	if _, err := TopLevel(t.TempDir()); err == nil {
+		t.Error("TopLevel() outside a repository succeeded, want error")
+	}
+}

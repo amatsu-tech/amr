@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func IsRepository(directory string) (bool, error) {
@@ -18,4 +19,19 @@ func IsRepository(directory string) (bool, error) {
 
 	return false, err
 
+}
+
+// TopLevel возвращает корень git-репозитория, внутри которого лежит directory.
+func TopLevel(directory string) (string, error) {
+	output, err := run(directory, "rev-parse", "--show-toplevel")
+	if err != nil {
+		return "", errors.New(firstLine(output))
+	}
+
+	return output, nil
+}
+
+func firstLine(text string) string {
+	line, _, _ := strings.Cut(text, "\n")
+	return line
 }

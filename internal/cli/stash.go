@@ -3,13 +3,17 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 	"time"
 
 	"github.com/amatsu-tech/amr/internal/cli/output"
+	"github.com/amatsu-tech/amr/internal/git"
 	"github.com/amatsu-tech/amr/internal/parallel"
 	"github.com/amatsu-tech/amr/internal/repository"
+	"github.com/amatsu-tech/amr/internal/workspace"
 	"github.com/spf13/cobra"
 )
 
@@ -64,11 +68,6 @@ type namedStashActionResult struct {
 }
 
 func stashCommand(cmd *cobra.Command, args []string) error {
-	root, err := currentWorkspace()
-	if err != nil {
-		return err
-	}
-
 	name := strings.TrimSpace(stashName)
 	if name == "" {
 		name = repository.DefaultStashName(time.Now())
@@ -78,7 +77,7 @@ func stashCommand(cmd *cobra.Command, args []string) error {
 		return errors.New("stash name must be a single line")
 	}
 
-	repositories, err := selectedRepositories(root, args)
+	repositories, err := stashRepositories(args)
 	if err != nil {
 		return err
 	}
@@ -153,12 +152,7 @@ func stashCommand(cmd *cobra.Command, args []string) error {
 }
 
 func stashListCommand(cmd *cobra.Command, args []string) error {
-	root, err := currentWorkspace()
-	if err != nil {
-		return err
-	}
-
-	repositories, err := selectedRepositories(root, args)
+	repositories, err := stashRepositories(args)
 	if err != nil {
 		return err
 	}
@@ -232,12 +226,7 @@ func stashDropCommand(cmd *cobra.Command, args []string) error {
 
 // stashAction выполняет pop или drop стеша name в выбранных репозиториях.
 func stashAction(cmd *cobra.Command, name string, paths []string, done string, action func(repository.Repository, string) repository.StashActionResult) error {
-	root, err := currentWorkspace()
-	if err != nil {
-		return err
-	}
-
-	repositories, err := selectedRepositories(root, paths)
+	repositories, err := stashRepositories(paths)
 	if err != nil {
 		return err
 	}
@@ -293,6 +282,42 @@ func stashAction(cmd *cobra.Command, name string, paths []string, done string, a
 	}
 
 	return nil
+}
+
+// stashRepositories — репозитории для команд stash. Внутри workspace — выбранные,
+// как в остальных командах. Вне workspace — git-репозиторий, в котором находишься:
+// так amr stash работает и без .amr.
+func stashRepositories(paths []string) ([]repository.Repository, error) {
+	root, err := currentWorkspace()
+	if err == nil {
+		return selectedRepositories(root, paths)
+	}
+
+	if !errors.Is(err, workspace.ErrNotFound) {
+		return nil, err
+	}
+
+	current, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	top, err := git.TopLevel(current)
+	if err != nil {
+		return nil, output.WithHint(
+			errors.New("not inside a workspace or a Git repository"),
+			"Run it inside a Git repository, or initialize a workspace with:\n  amr init",
+		)
+	}
+
+	if len(paths) > 0 || len(groups) > 0 {
+		return nil, output.WithHint(
+			errors.New("paths and groups work only inside a workspace"),
+			"Outside a workspace, amr stash works with the repository you are in. Run it without paths and groups",
+		)
+	}
+
+	return []repository.Repository{{Path: filepath.Base(top), Directory: top}}, nil
 }
 
 func init() {
