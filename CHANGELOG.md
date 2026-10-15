@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/amatsu-tech/amr/compare/v0.3.0...v0.4.0) (2026-10-15)
+
+
+### Features
+
+* add amr stash and select the current repository with a dot path ([4e37cae](https://github.com/amatsu-tech/amr/commit/4e37caee889e3df10360fd6acc9dc16f95b28ccd))
+* use amr stash without a workspace and show the version for go install builds ([aefe7e4](https://github.com/amatsu-tech/amr/commit/aefe7e434eb82eea6e5b9733bb25667402773a89))
+
 ## [0.3.0](https://github.com/amatsu-tech/amr/compare/v0.2.0...v0.3.0) (2026-10-13)
 
 
