@@ -3,11 +3,13 @@ package repository
 import (
 	"fmt"
 	"slices"
+	"strings"
 )
 
 // Select оставляет из repositories те, что указаны путём или входят в одну из групп.
 // Без путей и групп возвращает все. Порядок — как в конфиге, без повторов.
-// Пути считаются относительно текущей папки, как в Add.
+// Пути считаются относительно текущей папки, как в Add. Путь внутри репозитория
+// (например, "." из его подпапки) выбирает этот репозиторий.
 func Select(root string, repositories []Repository, paths, groups []string) ([]Repository, error) {
 	if len(paths) == 0 && len(groups) == 0 {
 		return repositories, nil
@@ -21,11 +23,12 @@ func Select(root string, repositories []Repository, paths, groups []string) ([]R
 			return nil, fmt.Errorf("%w: %s", err, rawPath)
 		}
 
-		if !slices.ContainsFunc(repositories, func(repo Repository) bool { return repo.Path == path }) {
+		repo, ok := containingRepository(repositories, path)
+		if !ok {
 			return nil, fmt.Errorf("%w: %s", ErrRepositoryNotTracked, path)
 		}
 
-		wanted[path] = true
+		wanted[repo.Path] = true
 	}
 
 	for _, group := range groups {
@@ -46,4 +49,19 @@ func Select(root string, repositories []Repository, paths, groups []string) ([]R
 	return slices.DeleteFunc(slices.Clone(repositories), func(repo Repository) bool {
 		return !wanted[repo.Path]
 	}), nil
+}
+
+// containingRepository находит репозиторий, внутри которого лежит path.
+// Если репозитории вложены друг в друга, берётся самый глубокий.
+func containingRepository(repositories []Repository, path string) (Repository, bool) {
+	var found Repository
+
+	for _, repo := range repositories {
+		inside := path == repo.Path || strings.HasPrefix(path, repo.Path+"/")
+		if inside && len(repo.Path) > len(found.Path) {
+			found = repo
+		}
+	}
+
+	return found, found.Path != ""
 }

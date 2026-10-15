@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"errors"
+
+	"github.com/amatsu-tech/amr/internal/cli/output"
 	"github.com/amatsu-tech/amr/internal/repository"
 	"github.com/spf13/cobra"
 )
@@ -28,5 +31,10 @@ func selectedRepositories(root string, paths []string) ([]repository.Repository,
 		return nil, err
 	}
 
-	return repository.Select(root, repositories, paths, groups)
+	selected, err := repository.Select(root, repositories, paths, groups)
+	if errors.Is(err, repository.ErrWorkspaceRoot) {
+		return nil, output.WithHint(err, "Run the command without paths to use every repository")
+	}
+
+	return selected, err
 }

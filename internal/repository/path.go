@@ -18,7 +18,11 @@ func resolvePath(root, raw string) (string, error) {
 		return "", err
 	}
 
-	if relative == "." || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+	if relative == "." {
+		return "", ErrWorkspaceRoot
+	}
+
+	if relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
 		return "", ErrOutsideWorkspace
 	}
 

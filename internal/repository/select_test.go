@@ -73,3 +73,37 @@ func TestSelectRelativeToCurrentDirectory(t *testing.T) {
 		t.Errorf("Select() = %+v, want backend/catalog", selected)
 	}
 }
+
+func TestSelectInsideRepository(t *testing.T) {
+	root := t.TempDir()
+	makeDir(t, root, "services/api/internal/pkg")
+	t.Chdir(filepath.Join(root, "services", "api", "internal"))
+
+	repositories := []Repository{{Path: "services/api"}, {Path: "services/api-docs"}, {Path: "frontend"}}
+
+	selected, err := Select(root, repositories, []string{"."}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(selected) != 1 || selected[0].Path != "services/api" {
+		t.Errorf("Select(.) = %+v, want services/api", selected)
+	}
+}
+
+func TestSelectNestedRepositories(t *testing.T) {
+	root := t.TempDir()
+	makeDir(t, root, "platform/tools/cli")
+	t.Chdir(filepath.Join(root, "platform", "tools", "cli"))
+
+	repositories := []Repository{{Path: "platform"}, {Path: "platform/tools"}}
+
+	selected, err := Select(root, repositories, []string{"."}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(selected) != 1 || selected[0].Path != "platform/tools" {
+		t.Errorf("Select(.) = %+v, want the deepest repository platform/tools", selected)
+	}
+}

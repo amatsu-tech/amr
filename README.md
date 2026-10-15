@@ -50,19 +50,21 @@ Every command except `init` can be run from any folder inside the workspace: `am
 | `amr pull` | Pull changes into repositories without local changes (fast-forward only) |
 | `amr sync` | Update the workspace config (if it is a Git repository), clone what is missing and pull the rest |
 | `amr run -- <command>...` | Run a command in repositories |
+| `amr stash` | Stash changes in repositories under one name, including new files. See [Stashing changes](#stashing-changes) |
 | `amr root` | Print the path to the workspace root |
 
 Details for each command: `amr <command> --help`.
 
 ## Choosing repositories
 
-`list`, `clone`, `status`, `pull`, `sync` and `run` work with every repository by default. To work with only some of them, pass paths or groups:
+`list`, `clone`, `status`, `pull`, `sync`, `run` and `stash` work with every repository by default. To work with only some of them, pass paths or groups:
 
 ```bash
 amr pull frontend services/api        # only these repositories
 amr pull -g backend                   # repositories in the backend group
 amr pull -g backend,web               # in any of these groups (or -g backend -g web)
 amr pull infra -g backend             # a path and a group together
+amr pull .                            # the repository you are in, even from its subfolder
 amr run -g backend -- go test ./...   # for run, put paths and groups before --
 ```
 
@@ -76,6 +78,25 @@ Error: no repositories in group: bakend
 ```
 
 Groups are set when adding repositories (`amr add -g backend services/api`) or directly in the config.
+
+## Stashing changes
+
+`amr stash` hides changes in every repository that has them, under one name. New (untracked) files are stashed too, ignored files (for example `node_modules`) are left alone.
+
+```bash
+amr stash -m login-fix          # stash under the name login-fix
+amr stash . -m login-fix        # only in the repository you are in
+amr stash list                  # amr stashes by name and the repositories that have them
+amr stash pop login-fix         # restore login-fix everywhere and remove it
+amr stash pop                   # restore the latest amr stash in each repository
+amr stash drop login-fix        # remove login-fix without restoring
+```
+
+This is handy when one task spans several repositories: stash all of them with one name and get them back later with one command.
+
+Without `-m`, the name is generated from the current time, for example `amr-2026-10-15-143005`, and is printed after stashing.
+
+amr finds stashes by name, so you don't need numbers like `stash@{2}`. Your regular `git stash` entries are not affected.
 
 ## Working in parallel
 

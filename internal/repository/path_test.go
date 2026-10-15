@@ -18,7 +18,7 @@ func TestResolvePath(t *testing.T) {
 		{name: "top level", raw: filepath.Join(root, "top-level-repo"), want: "top-level-repo"},
 		{name: "nested", raw: filepath.Join(root, "group", "nested-repo"), want: "group/nested-repo"},
 		{name: "not clean", raw: filepath.Join(root, "group", "..", "other-group", "repo"), want: "other-group/repo"},
-		{name: "root itself", raw: root, wantErr: ErrOutsideWorkspace},
+		{name: "root itself", raw: root, wantErr: ErrWorkspaceRoot},
 		{name: "parent", raw: filepath.Dir(root), wantErr: ErrOutsideWorkspace},
 		{name: "sibling", raw: filepath.Join(filepath.Dir(root), "outside-repo"), wantErr: ErrOutsideWorkspace},
 		{name: "dot-dot prefix is still inside", raw: filepath.Join(root, "..cache"), want: "..cache"},
