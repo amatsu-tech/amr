@@ -31,7 +31,7 @@ func Pull(repo Repository) PullResult {
 	}
 
 	if output, err := git.Fetch(repo.Directory); err != nil {
-		return PullResult{Outcome: PullFailed, Reason: firstNonEmpty(output, err.Error())}
+		return PullResult{Outcome: PullFailed, Reason: gitFailure(output, err)}
 	}
 
 	status, err = git.Status(repo.Directory)
@@ -44,7 +44,7 @@ func Pull(repo Repository) PullResult {
 	}
 
 	if output, err := git.MergeFastForward(repo.Directory); err != nil {
-		return PullResult{Outcome: PullFailed, Reason: firstNonEmpty(output, err.Error())}
+		return PullResult{Outcome: PullFailed, Reason: gitFailure(output, err)}
 	}
 
 	return PullResult{Outcome: PullUpdated}
@@ -57,16 +57,6 @@ func dirtyReason(status git.StatusSummary) string {
 
 	if status.Staged > 0 || status.Modified > 0 || status.Untracked > 0 {
 		return "modified files"
-	}
-
-	return ""
-}
-
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if value != "" {
-			return value
-		}
 	}
 
 	return ""

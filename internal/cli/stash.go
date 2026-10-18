@@ -277,6 +277,17 @@ func stashAction(cmd *cobra.Command, name string, paths []string, done string, a
 		cmd.Println(table.String())
 	}
 
+	// Неудачный pop оставляет стеш: подсказываем, как убрать его после проверки.
+	if len(failed) > 0 && done == "Restored" {
+		cmd.Println()
+
+		if name == "" {
+			cmd.Println("The stash is kept. After checking the files, see it with:\n  amr stash list")
+		} else {
+			cmd.Printf("The stash is kept. After checking the files, remove it with:\n  amr stash drop %s\n", name)
+		}
+	}
+
 	if len(failed) > 0 {
 		return output.Silent(fmt.Errorf("%d repositories failed", len(failed)))
 	}

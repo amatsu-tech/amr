@@ -40,7 +40,7 @@ func StashSave(repo Repository, name string) StashResult {
 	}
 
 	if output, err := git.StashPush(repo.Directory, stashPrefix+name); err != nil {
-		return StashResult{Outcome: StashFailed, Reason: firstNonEmpty(output, err.Error())}
+		return StashResult{Outcome: StashFailed, Reason: gitFailure(output, err)}
 	}
 
 	return StashResult{Outcome: StashSaved}
@@ -101,7 +101,7 @@ func withStash(repo Repository, name string, action func(directory, ref string) 
 		}
 
 		if output, err := action(repo.Directory, stash.Ref); err != nil {
-			return StashActionResult{Outcome: StashActionFailed, Reason: firstNonEmpty(output, err.Error())}
+			return StashActionResult{Outcome: StashActionFailed, Reason: gitFailure(output, err)}
 		}
 
 		return StashActionResult{Outcome: StashDone}

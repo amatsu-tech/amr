@@ -33,7 +33,7 @@ func Clone(repo Repository) CloneResult {
 	}
 
 	if output, err := git.Clone(repo.URL, repo.Directory); err != nil {
-		return CloneResult{Outcome: CloneFailed, Reason: firstNonEmpty(output, err.Error())}
+		return CloneResult{Outcome: CloneFailed, Reason: gitFailure(output, err)}
 	}
 
 	return CloneResult{Outcome: CloneCloned}
