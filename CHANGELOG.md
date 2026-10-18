@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/amatsu-tech/amr/compare/v0.4.0...v0.4.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* show a short reason instead of the full git output on failures ([a8b447c](https://github.com/amatsu-tech/amr/commit/a8b447c06ab4d3ac06e1ca65fa42d915cd2da916))
+
 ## [0.4.0](https://github.com/amatsu-tech/amr/compare/v0.3.0...v0.4.0) (2026-10-15)
 
 
